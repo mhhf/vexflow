@@ -438,6 +438,9 @@ Vex.Flow.Measure.Note = function(object) {
              : null;
 
   this.type = "note";
+
+	// OWN
+	this.stave = object.stave;
 }
 
 /* Standardize a key string, returning the result */

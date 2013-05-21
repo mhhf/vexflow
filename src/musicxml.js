@@ -170,7 +170,7 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
     if (typeof attrs.key  == "string") partOptions.key  = attrs.key;
     measure.setPart(p, partOptions);
     var part = measure.getPart(p);
-    part.setNumberOfStaves(this.numStaves[p]);
+		part.setNumberOfStaves(this.numStaves[p]);
     if (attrs.clef instanceof Array)
       for (var s = 0; s < this.numStaves[p]; s++)
         part.setStave(s, {clef: attrs.clef[s]});
@@ -182,12 +182,16 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
       // FIXME: Chord support
       var noteObj = this.parseNote(noteElems[i], attrs);
       if (noteObj.grace) continue; // grace note requires VexFlow support
+
+			console.log(noteObj);
+
       var voiceNum = 0;
       if (typeof noteObj.voice == "number") {
         if (noteObj.voice >=numVoices) part.setNumberOfVoices(noteObj.voice+1);
         voiceNum = noteObj.voice;
       }
       var voice = part.getVoice(voiceNum);
+
       if (voice.notes.length == 0 && typeof noteObj.stave == "number") {
         // TODO: voice spanning multiple staves (requires VexFlow support)
         voice.stave = noteObj.stave;
@@ -351,12 +355,15 @@ Vex.Flow.Backend.MusicXML.prototype.parseNote = function(noteElem, attrs) {
       case "grace": noteObj.grace = true; break;
       case "chord": noteObj.chord = true; break;
       case "voice":
-        var voice = parseInt(elem.textContent);
-        if (! isNaN(voice)) noteObj.voice = voice;
+        // var voice = parseInt(elem.textContent);
+        // if (! isNaN(voice)) noteObj.voice = voice;
         break;
       case "staff":
         var stave = parseInt(elem.textContent);
-        if (! isNaN(stave) && stave > 0) noteObj.stave = stave - 1;
+        if (! isNaN(stave) && stave > 0) {
+					noteObj.voice = stave;
+					noteObj.stave = stave - 1;
+				}
         break;
       case "stem":
         if (elem.textContent == "up") noteObj.stem_direction = 1;
