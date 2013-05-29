@@ -144,6 +144,7 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
   var vfVoice = new Vex.Flow.Voice({num_beats: voice.time.num_beats,
                                   beat_value: voice.time.beat_value,
                                   resolution: Vex.Flow.RESOLUTION});
+
   if (voice.time.soft) vfVoice.setMode(Vex.Flow.Voice.Mode.SOFT);
   // TODO: support spanning multiple staves
   if (typeof voice.stave != "number")
@@ -272,8 +273,9 @@ Vex.Flow.DocumentFormatter.prototype.getMinMeasureWidth = function(m) {
       var numTickables = v.tickables.length;
       if (numTickables > maxTickables) maxTickables = numTickables;
     });
-    this.minMeasureWidths[m] = Vex.Max(50,
-             maxExtraWidth + noteWidth + maxTickables*10 + 10);
+		// OWN
+    this.minMeasureWidths[m] = Vex.Max(200, maxExtraWidth + noteWidth + maxTickables*10 + 10);
+		// this.minMeasureWidths[m] = 200; //Vex.Max(50, maxExtraWidth + noteWidth + maxTickables*10 + 10);
 
     // Calculate minMeasureHeight by merging bounding boxes from each voice
     // and the bounding box from the stave
@@ -340,8 +342,21 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
   formatter.format(vfVoices, vfStaves[0].getNoteEndX()
                              - vfStaves[0].getNoteStartX() - 10);
   var i = 0;
-  vfVoices.forEach(function(vfVoice) {
-    vfVoice.draw(context, vfVoice.stave); });
+  vfVoices.forEach(function(vfVoice,v) {
+    vfVoice.draw(context, vfVoice.stave);
+		// create syncs array if not exists
+		if(!this.syncs) this.syncs = new Array();
+		vfVoice.tickables.forEach(function(tickable,t){
+			// creates a new voice entry if the 
+			if(!(v in this.syncs)) this.syncs[v] = new Array();
+			this.syncs[v].push({
+					numTickable: t,
+					x: tickable.getAbsoluteX(),
+					keys: tickable.keys,
+					tickable: tickable
+			});
+		},this);
+	},this);
   allVfObjects.forEach(function(obj) {
     obj.setContext(context).draw(); });
 }
@@ -427,7 +442,7 @@ Vex.Flow.DocumentFormatter.prototype.drawBlock = function(b, context) {
 Vex.Flow.DocumentFormatter.Liquid = function(document) {
   if (arguments.length > 0) Vex.Flow.DocumentFormatter.call(this, document);
   this.width = 500; // default value
-  this.zoom = 0.8;
+  this.zoom = 1.0;
   this.scale = 1.0;
   if (typeof window.devicePixelRatio == "number"
       && window.devicePixelRatio > 1)
@@ -538,7 +553,7 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.getBlock = function(b) {
   }
   var height = this.getStaveY(startMeasure, i-1);
   // Add max extra space for last stave on any measure in this block
-  var maxExtraHeight = 90; // default: height of stave
+  var maxExtraHeight = 100; // default: height of stave
   for (var i = startMeasure; i <= endMeasure; i++) {
     var minHeights = this.getMinMeasureHeight(i);
     var extraHeight = minHeights[minHeights.length - 1];
@@ -570,7 +585,9 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.draw = function(elem, options) {
     elem.innerHTML = "";
     this.canvases = [];
   }
-  var canvasWidth = $(elem).width() - 10; // TODO: can we use jQuery?
+
+  // var canvasWidth = $(elem).width() - 10; // TODO: can we use jQuery?
+	var canvasWidth = this.document.getNumberOfMeasures()*200+10;
   var renderWidth = Math.floor(canvasWidth / this.zoom);
   // Invalidate all blocks/staves/voices
   this.minMeasureWidths = []; // heights don't change with stave modifiers
