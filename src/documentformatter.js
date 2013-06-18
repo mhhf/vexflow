@@ -103,6 +103,16 @@ Vex.Flow.DocumentFormatter.prototype.createVexflowStave = function(s, x,y,w) {
         break;
     }
   });
+	if(s.time && false){
+		var time_sig;
+		if (typeof s.time == "string") 
+		{ 
+			time_sig = s.time; 
+		} else {
+			time_sig = s.time.num_beats.toString() + "/" + s.time.beat_value.toString();
+		}
+		vfStave.addTimeSignature(time_sig);
+	}
   if (typeof s.clef == "string") vfStave.clef = s.clef;
   return vfStave;
 }
@@ -168,12 +178,30 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
         beamedNotes = null;
       }
     }
-    if (note.tie == "end" || note.tie == "continue")
+		// TODO: allow ties over multiple staves, vexflow support needed
+    if (note.tie == "end" || note.tie == "continue") {
+			vfNote.tieEnd = true; // needed for ignoring in syncs
+			// console.log("found tie",this.tiedNotes[note.tieNumer],vfNote);
       // TODO: Tie only the correct indices
       vexflowObjects.push(new Vex.Flow.StaveTie({
-        first_note: tiedNote, last_note: vfNote
+        first_note: this.tiedNotes[note.tieNumber], last_note: vfNote
       }));
-    if (note.tie == "begin" || note.tie == "continue") tiedNote = vfNote;
+			this.tiedNotes[note.tieNumber] = null;
+		}
+    if (note.tie == "begin" || note.tie == "continue") {
+			//
+			// doas the tiedNotes array exist? If not create it
+			if( !this.tiedNotes ) this.tiedNotes = new Array();
+			//
+			// doas the number of the tied note exists in the array? 
+			if( !(note.tieNumber in this.tiedNotes) || this.tiedNotes[note.tieNumber] == null) {
+				// console.log("tieBegin",note);
+				this.tiedNotes[note.tieNumber] = vfNote;
+			} else {
+				console.log("ERROR: tie already exist and wtf are you pushing? maybe you don't clean up?");
+			}
+			// tiedNote = vfNote; 
+		}
     if (note.tuplet) {
       if (tupletNotes) tupletNotes.push(vfNote);
       else {
@@ -230,6 +258,11 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowNote = function(note, options) {
     });
   var numDots = Vex.Flow.parseNoteDurationString(note.duration).dots;
   for (var i = 0; i < numDots; i++) vfNote.addDotToAll();
+	if(typeof note.articulations == "object" && note.articulations.staccato == true) 
+	{
+		console.log('found');
+		vfNote.addArticulation(0, new Vex.Flow.Articulation("a.").setPosition(4));
+	}
   return vfNote;
 }
 
@@ -319,8 +352,19 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
   function(part, vfStaves, context) {
   var staves = part.getStaves();
   var voices = part.getVoices();
+	// OWN: letztendlich hier bars anhängen
 
-  vfStaves.forEach(function(stave) { stave.setContext(context).draw(); });
+  vfStaves.forEach(function(stave) { 
+		stave.setContext(context).draw(); 
+		if(typeof part.bars == "object") {
+			if(part.bars.location == "right") {
+				stave.setEndBarType(Vex.Flow.Barline.type.END);
+			}
+			if(part.bars.location == "left") {
+				stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
+			}
+		}
+	});
 
   var allVfObjects = new Array();
   var vfVoices = new Array();
@@ -348,15 +392,20 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 		if(!this.syncs) this.syncs = new Array();
 		vfVoice.tickables.forEach(function(tickable,t){
 			// creates a new voice entry if the 
-			if(!(v in this.syncs)) this.syncs[v] = new Array();
-			this.syncs[v].push({
+			// if(!(v in this.syncs)) this.syncs[v] = new Array();
+			this.syncs.push({
 					numTickable: t,
+					type: tickable.noteType,
 					x: tickable.getAbsoluteX(),
 					keys: tickable.keys,
+					keyProps: tickable.keyProps,
 					tickable: tickable
 			});
 		},this);
 	},this);
+	this.syncs.sort(function(a,b){
+		return a.x - b.x;
+	});
   allVfObjects.forEach(function(obj) {
     obj.setContext(context).draw(); });
 }
@@ -402,12 +451,8 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
     }
     if (options.system_end && connector.system_end) {
       var stave1 = vfStaves[firstStave], stave2 = vfStaves[lastStave];
-      var dummy1 = new Vex.Flow.Stave(stave1.x + stave1.width,
-                                      stave1.y, 100);
-      var dummy2 = new Vex.Flow.Stave(stave2.x + stave2.width,
-                                      stave2.y, 100);
-      (new Vex.Flow.StaveConnector(dummy1, dummy2)
-          ).setType(type).setContext(context).draw();
+      (new Vex.Flow.StaveConnector(stave1, stave2)
+          ).setType(Vex.Flow.StaveConnector.type.SINGLE_END).setContext(context).draw();
     }
   });
 }
@@ -476,10 +521,10 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.getBlock = function(b) {
       s.addModifier({type: "key", key: s.key, automatic: true});
     }
     // Time signature on first measure of piece only
-    if (startMeasure == 0 && ! s.getModifier("time")) {
+		if (startMeasure == 0 && ! s.getModifier("time")) {
       if (typeof s.time_signature == "string")
         s.addModifier({type: "time", time: s.time_signature,automatic:true});
-      else if (typeof s.time == "object" && ! s.time.soft)
+      else if (typeof s.time == "object" && !s.time.soft)
         s.addModifier(Vex.Merge({type: "time", automatic: true}, s.time));
     }
   });
@@ -606,7 +651,7 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.draw = function(elem, options) {
     var canvas, context;
     var dims = this.blockDimensions[b];
     var width = Math.ceil(dims[0] * this.zoom);
-    var height = Math.ceil(dims[1] * this.zoom);
+    var height = Math.ceil(dims[1] * this.zoom)+30; // OWN: stave ties are cutted here
     if (! this.canvases[b]) {
       canvas = document.createElement('canvas');
       canvas.width = width * this.scale;
