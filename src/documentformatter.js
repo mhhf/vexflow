@@ -355,15 +355,15 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 	// OWN: letztendlich hier bars anhängen
 
   vfStaves.forEach(function(stave) { 
-		stave.setContext(context).draw(); 
 		if(typeof part.bars == "object") {
 			if(part.bars.location == "right") {
-				stave.setEndBarType(Vex.Flow.Barline.type.END);
+				stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
 			}
 			if(part.bars.location == "left") {
 				stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
 			}
 		}
+		stave.setContext(context).draw(); 
 	});
 
   var allVfObjects = new Array();
@@ -429,6 +429,7 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
     var firstPart = connector.parts[0],
         lastPart = connector.parts[connector.parts.length - 1];
     var firstStave, lastStave;
+		var repeat_begin, repeat_end;
     // Go through each part in measure to find the stave index
     var staveNum = 0, partNum = 0;
     parts.forEach(function(part) {
@@ -444,6 +445,16 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
              : connector.type == "brace"  ? Vex.Flow.StaveConnector.type.BRACE
              : connector.type =="bracket"? Vex.Flow.StaveConnector.type.BRACKET
              : null;
+		// TODO: What if measure holds multiple parts?
+		var bars =  measure.getParts()[0].bars;
+		if ( typeof bars == "object" ) {
+			if( bars.location == "right" ) {
+				type = Vex.Flow.StaveConnector.type.REPEAT_END;
+			}
+			if( bars.location == "left" ) {
+				type = Vex.Flow.StaveConnector.type.REPEAT_BEGIN;
+			}
+		}
     if ((options.system_start && connector.system_start)
         || connector.measure_start) {
       (new Vex.Flow.StaveConnector(vfStaves[firstStave], vfStaves[lastStave])
