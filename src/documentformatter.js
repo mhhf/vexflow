@@ -448,11 +448,13 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
 		// TODO: What if measure holds multiple parts?
 		var bars =  measure.getParts()[0].bars;
 		if ( typeof bars == "object" ) {
-			if( bars.location == "right" ) {
-				type = Vex.Flow.StaveConnector.type.REPEAT_END;
-			}
 			if( bars.location == "left" ) {
 				type = Vex.Flow.StaveConnector.type.REPEAT_BEGIN;
+			}
+			if( bars.location == "right" ) {
+				var stave1 = vfStaves[firstStave], stave2 = vfStaves[lastStave];
+				(new Vex.Flow.StaveConnector(stave1, stave2)
+          ).setType(Vex.Flow.StaveConnector.type.REPEAT_END).setContext(context).draw();
 			}
 		}
     if ((options.system_start && connector.system_start)
