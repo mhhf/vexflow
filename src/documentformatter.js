@@ -195,10 +195,9 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
 			//
 			// doas the number of the tied note exists in the array? 
 			if( !(note.tieNumber in this.tiedNotes) || this.tiedNotes[note.tieNumber] == null) {
-				// console.log("tieBegin",note);
 				this.tiedNotes[note.tieNumber] = vfNote;
 			} else {
-				console.log("ERROR: tie already exist and wtf are you pushing? maybe you don't clean up?");
+				console.log("FUCK the TIE in DocForm");
 			}
 			// tiedNote = vfNote; 
 		}
@@ -256,12 +255,11 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowNote = function(note, options) {
       if (acc != null) vfNote.addAccidental(i, new Vex.Flow.Accidental(acc));
       i++;
     });
-  var numDots = Vex.Flow.parseNoteDurationString(note.duration).dots;
+	var numDots = Vex.Flow.parseNoteDurationString(note.duration).dots;
   for (var i = 0; i < numDots; i++) vfNote.addDotToAll();
 	if(typeof note.articulations == "object" && note.articulations.staccato == true) 
 	{
-		console.log('found');
-		vfNote.addArticulation(0, new Vex.Flow.Articulation("a.").setPosition(4));
+		vfNote.addArticulation(0, new Vex.Flow.Articulation("a.").setPosition(vfNote.stem_direction==1?4:3));
 	}
   return vfNote;
 }
@@ -356,13 +354,14 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 
   vfStaves.forEach(function(stave) { 
 		if(typeof part.bars == "object") {
-			if(part.bars.location == "right") {
+			if(part.bars.location == "right" && part.bars.direction == "backward") {
 				stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
 			}
-			if(part.bars.location == "left") {
+			if(part.bars.location == "left" && part.bars.direction == "forward") {
 				stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
 			}
 		}
+
 		stave.setContext(context).draw(); 
 	});
 
@@ -403,9 +402,11 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 			});
 		},this);
 	},this);
+
 	this.syncs.sort(function(a,b){
 		return a.x - b.x;
 	});
+
   allVfObjects.forEach(function(obj) {
     obj.setContext(context).draw(); });
 }

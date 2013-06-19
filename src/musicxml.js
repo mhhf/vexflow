@@ -396,7 +396,7 @@ Vex.Flow.Backend.MusicXML.prototype.parseNote = function(noteElem, attrs) {
         var stave = parseInt(elem.textContent);
         if (! isNaN(stave) && stave > 0) {
 					// HACK
-					noteObj.voice = stave;
+					// noteObj.voice = stave;
 					noteObj.stave = stave - 1;
 				}
         break;
@@ -425,11 +425,11 @@ Vex.Flow.Backend.MusicXML.prototype.parseNote = function(noteElem, attrs) {
               switch (tie) {
                 case "start":
                   noteObj.tie = (noteObj.tie == "end") ? "continue" : "begin";
-									noteObj.tieNumber = notationElem.getAttribute("number");
+									noteObj.tieNumber = noteObj.keys;
                   break;
                 case "stop":
                   noteObj.tie = (noteObj.tie == "begin") ? "continue" : "end";
-									noteObj.tieNumber = notationElem.getAttribute("number");
+									noteObj.tieNumber = noteObj.keys;
                   break;
                 default: Vex.RERR("BadMusicXML", "Bad tie: " + tie.toString());
               }

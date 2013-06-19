@@ -417,6 +417,7 @@ Vex.Flow.Measure.Note = function(object) {
   // Note: accidentals set by voice if this.accidentals == null
   //       no accidentals           if this.accidentals == [null, ...]
   this.duration = object.duration;
+	this.tieNumber = object.tieNumber;
   this.rest = !!(object.rest); // force true or false
   this.intrinsicTicks = (object.intrinsicTicks > 0)
                       ? object.intrinsicTicks : null;
