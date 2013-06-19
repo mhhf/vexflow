@@ -214,7 +214,7 @@ Vex.drawDot = function(ctx, x, y, color) {
 
   //draw a circle
   ctx.beginPath();
-  ctx.arc(x, y, 3, 0, Math.PI*2, true);
+  ctx.arc(x, y, 3, 0, 6.283185, true);
   ctx.closePath();
   ctx.fill();
   ctx.restore();

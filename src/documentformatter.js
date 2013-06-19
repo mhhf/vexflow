@@ -353,15 +353,16 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 	// OWN: letztendlich hier bars anhängen
 
   vfStaves.forEach(function(stave) { 
-		if(typeof part.bars == "object") {
-			if(part.bars.location == "right" && part.bars.direction == "backward") {
-				stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
-			}
-			if(part.bars.location == "left" && part.bars.direction == "forward") {
-				stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
-			}
-		}
-
+		// if(typeof part.bars == "object") {
+		// 	if(part.bars.location == "right" && part.bars.direction == "backward") {
+		// 		stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
+		// 	}
+		// 	if(part.bars.location == "left" && part.bars.direction == "forward") {
+		// 		stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
+		// 	}
+		// }
+		stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
+		stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
 		stave.setContext(context).draw(); 
 	});
 
@@ -448,7 +449,7 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
              : null;
 		// TODO: What if measure holds multiple parts?
 		var bars =  measure.getParts()[0].bars;
-		if ( typeof bars == "object" ) {
+		if ( typeof bars == "object" && false ) {
 			if( bars.location == "right" ) {
 				type = Vex.Flow.StaveConnector.type.REPEAT_END;
 			}
