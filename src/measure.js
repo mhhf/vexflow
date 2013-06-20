@@ -103,7 +103,6 @@ Vex.Flow.Measure.Part = function(object) {
     throw new Vex.RERR("ArgumentError",
               "Constructor requires nonzero num_beats and beat_value");
   this.time = Vex.Merge({}, object.time);
-	if( part.flag ) 
 
   // Convenience options which can be set on a part instead of a stave/voice
   this.options = {time: this.time};
@@ -115,6 +114,8 @@ Vex.Flow.Measure.Part = function(object) {
     Vex.Merge(this.options, object.options);
 	if (typeof object.bars == "object") 
 		this.bars = object.bars;
+	if(typeof object.dynamic == "object")
+		this.dynamic = object.dynamic;
 
   if (typeof object.getVoices == "function") this.voices = object.getVoices();
   else if (object.voices instanceof Array) {
@@ -225,7 +226,6 @@ Vex.Flow.Measure.Voice = function(object) {
   if (! object.time || ! object.time.num_beats || ! object.time.beat_value)
     throw new Vex.RERR("ArgumentError",
               "Constructor requires nonzero num_beats and beat_value");
-	console.log("VFMV",object.dynamic);
   this.time = Vex.Merge({}, object.time);
   this.key = (typeof object.key == "string") ? object.key : null;
   this.notes = new Array();
@@ -303,7 +303,6 @@ Vex.Flow.Measure.Stave = function(object) {
   if (typeof object.clef != "string")
     throw new Vex.RERR("InvalidIRError",
               "Stave object requires clef property");
-	console.log("VFMS",object.dynamic);
   this.clef = object.clef;
   this.key = (typeof object.key == "string") ? object.key : null;
   this.modifiers = new Array();

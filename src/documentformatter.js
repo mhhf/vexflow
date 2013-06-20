@@ -233,19 +233,19 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
     }
     else vfVoice.addTickable(vfNote);
 		
-		// if (note.dynamic){
-		// 	if(!lyricVoice){
-		// 		lyricVoice = new Vex.Flow.Voice(vfVoice.time);
-		// 		lyricVoice.setMode(Vex.Flow.Voice.Mode.SOFT);
-		// 		lyricVoice.setStave(vfVoice.stave);
-		// 	}
-		// 	lyricVoice.addTickable(new Vex.Flow.TextNote({
-		// 				text: "", duration: note.duration, glyph:"p", soft:true, line:-1
-		// 	}));
-		// }
-		// vexflowObjects.push(text);
+		// Note Dynamics
+		if(vfVoice.stave.dynamic) {
+			if(!lyricVoice){
+				lyricVoice = new Vex.Flow.Voice(vfVoice.time);
+				lyricVoice.setMode(Vex.Flow.Voice.Mode.SOFT);
+				lyricVoice.setStave(vfVoice.stave);
+			}
 
-		// TODO: add note.dynamics
+			lyricVoice.addTickable(new Vex.Flow.TextNote({
+						text: "", duration: "64", glyphs:"mm", soft:true, line:1
+			}));
+		}
+
     if (note.lyric) {
       if (! lyricVoice) {
         lyricVoice = new Vex.Flow.Voice(vfVoice.time);
@@ -382,10 +382,13 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
   function(part, vfStaves, context) {
   var staves = part.getStaves();
   var voices = part.getVoices();
-	// OWN: letztendlich hier bars anhängen
+
+	// add the dynamic information to a stave
+	if( part.dynamic )
+		vfStaves[part.dynamic[0].stave].dynamic = part.dynamic[0].type;
 
   vfStaves.forEach(function(stave) { 
-		console.log("VFST",stave.dynamic);
+		// HERE
 		if(typeof part.bars == "object") {
 			if(part.bars.location == "right" && part.bars.direction == "backward") {
 				stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);

@@ -83,16 +83,41 @@ Vex.Flow.TextNote.prototype.init = function(text_struct) {
   // Note properties
   this.text = text_struct.text;
   this.glyph_type = text_struct.glyph;
+  this.glyphs_type = text_struct.glyphs; // multiple glyphs support -> ff,pp, mf
   this.glyph = null;
+  this.glyphs = null; // multiple glyphs
   this.font = {
     family: "Arial",
     size: 12,
     weight: ""
   }
+	if( this.glyph_type && this.glyphs_type )
+		throw new Vex.RERR("Please use glyphs_type for multiple glyphs");
 
   if (text_struct.font) this.font = text_struct.font;
 
-  if (this.glyph_type) {
+	// multiple glyphes support
+	if (this.glyphs_type) {
+		var struct = new Array();
+		this.glyphs = new Array();
+		for (var i=0; i < this.glyphs_type.length; i++) {
+			struct[i] = Vex.Flow.TextNote.GLYPHS[this.glyphs_type[i]];
+			this.glyphs[i] = new Vex.Flow.Glyph( struct[i].code, struct[i].point, {cache: false});
+		}
+
+		// calculate width 
+		var width = 0;
+		for (var i=0; i < struct.length; i++) {
+			if( struct[i].width ) {
+				width += struct[i].width;
+			} else {
+				width += this.glyphs[i].getMetrics().width;
+			}
+		}
+		this.setWidth(width);
+
+		this.glyphs_struct = struct;
+	} else if (this.glyph_type) {
     var struct = Vex.Flow.TextNote.GLYPHS[this.glyph_type];
     if (!struct) throw new Vex.RERR("Invalid glyph type: " + this.glyph_type);
 
@@ -107,6 +132,7 @@ Vex.Flow.TextNote.prototype.init = function(text_struct) {
   } else {
     this.setWidth(Vex.Flow.textWidth(this.text));
   }
+
   this.line = text_struct.line || 0;
   this.smooth = text_struct.smooth || false;
   this.ignore_ticks = text_struct.ignore_ticks || false;
@@ -161,7 +187,22 @@ Vex.Flow.TextNote.prototype.draw = function() {
     x -= this.getWidth();
   }
 
-  if (this.glyph) {
+	if (this.glyphs) {
+    var y = this.stave.getYForLine(this.line + (-3));
+		var offset = 0;
+		console.log(this.glyphs);
+		for (var i=0; i < this.glyphs.length; i++) {
+			this.glyphs[i].render(this.context,
+				x + this.glyphs_struct[i].x_shift + offset,
+				y + this.glyphs_struct[i].y_shift
+			);
+			if( this.glyphs_struct[i].width ) {
+				offset += (this.glyphs_struct[i].width);
+			} else {
+				offset += (this.glyphs[i].getMetrics().width);
+			}
+		}
+	} else if (this.glyph) {
     var y = this.stave.getYForLine(this.line + (-3));
     this.glyph.render(this.context,
                       x + this.glyph_struct.x_shift,
