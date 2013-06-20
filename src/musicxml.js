@@ -183,6 +183,27 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
       for (var s = 0; s < this.numStaves[p]; s++)
         part.setStave(s, {clef: attrs.clef[s]});
     var numVoices = 1; // can expand dynamically
+		
+		// TODO: Write in part, read from part, look for HERE tag in doc..formatter
+		part.flag = true;
+		// DYNAMIC
+		var directions = this.measures[m][p].getElementsByTagName("direction");
+		for(var i = 0; i<directions.length; i++) {
+			if( directions[i].getElementsByTagName("direction-type")[0]
+					.getElementsByTagName("dynamics").length > 0){
+
+
+					var stave = part.getStave(directions[i].getElementsByTagName("staff")[0].textContent-1);
+					if(!stave.dynamics) stave.dynamic = new Array();
+
+					stave.dynamic.push( {
+							type: directions[i].getElementsByTagName("direction-type")[0].getElementsByTagName("dynamics")[0].childNodes[1].nodeName 
+					});
+			}
+		}
+
+
+
 		var barlines = this.measures[m][p].getElementsByTagName("barline");
 		// BARLINES
 		if(barlines.length > 0) {
@@ -434,6 +455,14 @@ Vex.Flow.Backend.MusicXML.prototype.parseNote = function(noteElem, attrs) {
                 default: Vex.RERR("BadMusicXML", "Bad tie: " + tie.toString());
               }
               break;
+						case "slur":
+              var type = notationElem.getAttribute("type");
+              var number = notationElem.getAttribute("number");
+							noteObj.slur = {
+								type : type,
+								number: number
+							};
+							break;
 						case "articulations":
 							Array.prototype.forEach.call(notationElem.childNodes,function(articulationElem){
 								switch(articulationElem.nodeName){

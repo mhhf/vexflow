@@ -178,7 +178,9 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
         beamedNotes = null;
       }
     }
-		// TODO: allow ties over multiple staves, vexflow support needed
+
+
+		// TIE
     if (note.tie == "end" || note.tie == "continue") {
 			vfNote.tieEnd = true; // needed for ignoring in syncs
 			// console.log("found tie",this.tiedNotes[note.tieNumer],vfNote);
@@ -194,13 +196,29 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
 			if( !this.tiedNotes ) this.tiedNotes = new Array();
 			//
 			// doas the number of the tied note exists in the array? 
-			if( !(note.tieNumber in this.tiedNotes) || this.tiedNotes[note.tieNumber] == null) {
+			if( !(note.tieNumber in this.tiedNotes) || this.tiedNotes[note.tieNumber] == null) {
 				this.tiedNotes[note.tieNumber] = vfNote;
 			} else {
 				console.log("FUCK the TIE in DocForm");
 			}
 			// tiedNote = vfNote; 
 		}
+
+		// SLUR
+		if(typeof note.slur == "object") {
+			if( !this.slurNotes ) this.slurNotes = new Array();
+
+			if(note.slur.type == "start"){
+				if( !(note.slur.number in this.slurNotes) || this.slurNotes[note.slur.number] == null )
+					this.slurNotes[note.slur.number] = vfNote;
+			} else if(note.slur.type == "stop"){
+				vexflowObjects.push(new Vex.Flow.StaveSlur({
+					first_note: this.slurNotes[note.slur.number], last_note: vfNote
+				}));
+				this.slurNotes[note.slur.number] = null;
+			}
+		}
+
     if (note.tuplet) {
       if (tupletNotes) tupletNotes.push(vfNote);
       else {
@@ -214,6 +232,20 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
       }
     }
     else vfVoice.addTickable(vfNote);
+		
+		// if (note.dynamic){
+		// 	if(!lyricVoice){
+		// 		lyricVoice = new Vex.Flow.Voice(vfVoice.time);
+		// 		lyricVoice.setMode(Vex.Flow.Voice.Mode.SOFT);
+		// 		lyricVoice.setStave(vfVoice.stave);
+		// 	}
+		// 	lyricVoice.addTickable(new Vex.Flow.TextNote({
+		// 				text: "", duration: note.duration, glyph:"p", soft:true, line:-1
+		// 	}));
+		// }
+		// vexflowObjects.push(text);
+
+		// TODO: add note.dynamics
     if (note.lyric) {
       if (! lyricVoice) {
         lyricVoice = new Vex.Flow.Voice(vfVoice.time);
@@ -353,6 +385,7 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 	// OWN: letztendlich hier bars anhängen
 
   vfStaves.forEach(function(stave) { 
+		console.log("VFST",stave.dynamic);
 		if(typeof part.bars == "object") {
 			if(part.bars.location == "right" && part.bars.direction == "backward") {
 				stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
