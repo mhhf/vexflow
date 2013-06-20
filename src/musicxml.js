@@ -185,7 +185,6 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
     var numVoices = 1; // can expand dynamically
 		
 		// TODO: Write in part, read from part, look for HERE tag in doc..formatter
-		part.flag = true;
 		// DYNAMIC
 		var directions = this.measures[m][p].getElementsByTagName("direction");
 		for(var i = 0; i<directions.length; i++) {
@@ -193,11 +192,12 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 					.getElementsByTagName("dynamics").length > 0){
 
 
-					var stave = part.getStave(directions[i].getElementsByTagName("staff")[0].textContent-1);
-					if(!stave.dynamics) stave.dynamic = new Array();
+					var stave = directions[i].getElementsByTagName("staff")[0].textContent-1;
+					if(!part.dynamics) part.dynamic = new Array();
 
-					stave.dynamic.push( {
-							type: directions[i].getElementsByTagName("direction-type")[0].getElementsByTagName("dynamics")[0].childNodes[1].nodeName 
+					part.dynamic.push( {
+							type: directions[i].getElementsByTagName("direction-type")[0].getElementsByTagName("dynamics")[0].childNodes[1].nodeName,
+							stave: stave
 					});
 			}
 		}
