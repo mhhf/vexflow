@@ -242,7 +242,7 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
 			}
 
 			lyricVoice.addTickable(new Vex.Flow.TextNote({
-						text: "", duration: "64", glyphs:"mm", soft:true, line:1
+						text: "", duration: "w", glyphs:vfVoice.stave.dynamic, soft:true, line:1
 			}));
 		}
 

@@ -80,7 +80,13 @@ Vex.Flow.TextNote.prototype.init = function(text_struct) {
   var superclass = Vex.Flow.TextNote.superclass;
   superclass.init.call(this, text_struct);
 
-  // Note properties
+	if(text_struct.glyphs && text_struct.glyphs.length == 1) {
+		text_struct.glyph = text_struct.glyphs;
+		text_struct.glyphs = null;
+	}
+
+
+	// Note properties
   this.text = text_struct.text;
   this.glyph_type = text_struct.glyph;
   this.glyphs_type = text_struct.glyphs; // multiple glyphs support -> ff,pp, mf
