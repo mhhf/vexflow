@@ -34,6 +34,7 @@
   <script src="../src/ghostnote.js"></script>
   <script src="../src/formatter.js"></script>
   <script src="../src/stavetie.js"></script>
+  <script src="../src/staveped.js"></script>
   <script src="../src/staveslur.js"></script>
   <script src="../src/stavehairpin.js"></script>
   <script src="../src/tabtie.js"></script>
@@ -87,7 +88,8 @@
     $(document).ready(function() {
       var req = new XMLHttpRequest();
       var uri = getParameter('doc');
-			if (! uri) uri = 'minEx/pedal.xml';
+			if (! uri) uri = '04_Pre.xml';
+			if (! uri) uri = 'minEx/pedalMultipleNotes.xml';
       var loadStart = new Date().getTime(); // time load
       req.open('GET', "samples/" + uri, true);
       req.onreadystatechange = function() {

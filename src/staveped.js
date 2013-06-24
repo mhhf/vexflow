@@ -81,13 +81,15 @@ Vex.Flow.StavePed.prototype.renderPed = function(params) {
   var ctx = this.context;
 
   var y_shift = this.render_options.y_shift;
-	
-	// Render PED symbol
-	Vex.Flow.renderGlyph(this.context, params.first_x_px -10, params.first_ys[0]+y_shift, 38, "v36");
-
-
 	var first_y_px = params.first_ys[0] + y_shift;
 	var last_y_px = params.last_ys[0] + y_shift;
+
+	if (first_y_px < params.stave_y-15 ) first_y_px = params.stave_y-15;
+	
+	// Render PED symbol
+	// console.log();
+	Vex.Flow.renderGlyph(this.context, params.first_x_px -10, first_y_px, 38, "v36");
+
 
 	if (isNaN(first_y_px) || isNaN(last_y_px))
 		throw new Vex.RERR("BadArguments", "Bad indices for tie rendering.");
@@ -111,17 +113,25 @@ Vex.Flow.StavePed.prototype.draw = function() {
   var last_note = this.last_note;
   var first_x_px, last_x_px, first_ys, last_ys;
 
-	first_x_px = first_note.getAbsoluteX();
+	var n = last_note;
+	var dur = n.getStave().getNoteEndX() - n.getStave().getNoteStartX();
+	dur /= n.getDuration();
+
+
+
+	first_x_px = first_note.getBoundingBox().x;
 	first_ys = first_note.getYs();
 
-	last_x_px = last_note.getBoundingBox().x + last_note.width;
+	last_x_px = last_note.getBoundingBox().x + last_note.width + dur -10;
 	last_ys = last_note.getYs();
+
 
   this.renderPed({
     first_x_px: first_x_px,
     last_x_px: last_x_px,
     first_ys: first_ys,
     last_ys: last_ys,
+		stave_y: this.first_note.getStave().getBottomY()
   });
 
   return true;

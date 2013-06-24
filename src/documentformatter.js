@@ -246,8 +246,6 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
 			}));
 		}
 
-		if( vfVoice.stave.pedal )
-			console.log(vfVoice.stave.pedal);
 
     if (note.lyric) {
       if (! lyricVoice) {
@@ -296,6 +294,7 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowNote = function(note, options) {
 	{
 		vfNote.addArticulation(0, new Vex.Flow.Articulation("a.").setPosition(vfNote.stem_direction==1?4:3));
 	}
+	if(note.pedal) note.pedal.notes.push(vfNote);
   return vfNote;
 }
 
@@ -443,6 +442,24 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 					tickable: tickable
 			});
 		},this);
+
+		if( vfVoice.stave.pedal ){
+			// FIXME: WTF, why 3?
+			var first_note = vfVoice.stave.pedal.notes[3];
+			var last_note = vfVoice.stave.pedal.notes[vfVoice.stave.pedal.notes.length-1];
+			// Array.prototype.forEach.call(vfVoice.stave.pedal.notes,function(note){
+			// 	if(!first_note ||note.getAbsoluteX() < first_note.getAbsoluteX() )
+			// 		first_note = note;
+			// 	if(!last_note ||note.getAbsoluteX() > last_note.getAbsoluteX() )
+			// 		last_note = note;
+			// });
+			//
+			// console.log(vfVoice.stave.pedal.notes[3].getAbsoluteX());
+			allVfObjects.push(new Vex.Flow.StavePed({
+				first_note: first_note,
+				last_note: last_note
+			}));
+		}
 	},this);
 
 	this.syncs.sort(function(a,b){

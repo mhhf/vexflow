@@ -189,19 +189,88 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
         part.setStave(s, {clef: attrs.clef[s]});
     var numVoices = 1; // can expand dynamically
 		
-		// TODO: 
+		// TODO: Test multiple bars on one stave -> make bars an array
+		//
 		// FIXME: PedalAndDynamic, wrong display of symbol
 		// DYNAMIC
 		var barObj = null;
+		var self = this;
+
+    var noteElems = this.measures[m][p].getElementsByTagName("note");
+    var voiceObjects = new Array(); // array of arrays
+    var lastNote = null; // Hold on to last note in case there is a chord
 
 		Array.prototype.forEach.call(	this.measures[m][p].childNodes, function(elem){
 			switch(elem.nodeName){
 			case "direction":
-				console.log("directions found");
+
+				var type = elem.getElementsByTagName("direction-type")[0];
+				var stave = elem.getElementsByTagName("staff")[0].textContent-1;
+				
+				switch(type.childNodes[1].nodeName){
+				case "pedal":
+
+					var pedal = type.getElementsByTagName("pedal")[0];
+					var type = pedal.getAttribute("type");
+
+					if(!part.directions) part.directions = {};
+					if( type == "start" ){
+						console.log("pedal found");
+						part.directions.pedal = {type: type, stave:stave, notes: new Array()};
+						if( !self.pedal ) self.pedal = part.directions.pedal;
+						else new Vex.RERR("pedal already exists");
+					} else {
+						if(!self.pedal) new Vex.RERR("no pedal exists for removing");
+						self.pedal = null;
+					}
+
+					break;
+				case "dynamics":
+					if(!part.dynamics) part.dynamic = new Array();
+
+					part.dynamic.push( {
+							type: type.getElementsByTagName("dynamics")[0].childNodes[1].nodeName,
+							stave: stave
+					});
+
+					break;
+				default:
+					if( type.childNodes[1].nodeName != "#text" )
+						Vex.LogWarn("MusicXML measure direction type <"+type.childNodes[1].nodeName+"> unhandled");
+				
+				}
 				break;
 			case "note":
-				console.log("note found");
+
+				var noteObj = self.parseNote(elem, attrs);
+				if (noteObj.grace) break; // grace note requires VexFlow support
+
+				var voiceNum = 0;
+				if (typeof noteObj.voice == "number") {
+					voiceNum = noteObj.voice;
+					if (noteObj.voice >= numVoices) part.setNumberOfVoices(noteObj.voice+1);
+					numVoices = noteObj.voice+1;
+				}
+				var voice = part.getVoice(voiceNum);
+
+				if (voice.notes.length == 0 && typeof noteObj.stave == "number") {
+					// TODO: voice spanning multiple staves (requires VexFlow support)
+					voice.stave = noteObj.stave;
+				}
+
+				if(self.pedal) {
+					noteObj.pedal = self.pedal;
+				}
+
+				if (noteObj.chord) lastNote.keys.push(noteObj.keys[0]);
+				else {
+					lastNote = noteObj;
+					if (lastNote) part.getVoice(lastNote.voice || 0).addNote(lastNote);
+				}
+
+
 				break;
+
 			case "barline":
 
 	 			barObj = {};
@@ -232,100 +301,11 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 			}
 		});
 
+
 		// attach bar object to part
 		if( barObj )
 			part.bars = barObj;
 
-
-	// var barlines = this.measures[m][p].getElementsByTagName("barline");
-	// 	// BARLINES
-	// 	if(barlines.length > 0) {
-	// 	
-	// 		for(var b=0; b<barlines.length; b++){
-	// 			
-	// 			var bar = barlines[b];
-	// 			var barObj = {};
-	// 			
-	// 			if(bar.getAttribute("location")) barObj.location = bar.getAttribute("location");
-	// 			Array.prototype.forEach.call(bar.childNodes,function(node){
-	// 				switch(node.nodeName){
-	// 					case "bar-style":
-	// 						barObj.barStyle = node.textContent;
-	// 					break;
-	// 					case "repeat":
-	// 						barObj.direction = node.getAttribute("direction");
-	// 					break;
-	// 				}
-	// 			});
-
-	// 		}
-
-	// 		// part.bars = barObj;
-	// 	}
-
-
-
-		// DIRECTIONS HANDLE
-
-		// var directions = this.measures[m][p].getElementsByTagName("direction");
-
-		// for(var i = 0; i<directions.length; i++) {
-		// 	var type = directions[i].getElementsByTagName("direction-type")[0];
-		// 	var stave = directions[i].getElementsByTagName("staff")[0].textContent-1;
-
-		// 	if( type.getElementsByTagName("dynamics").length > 0){
-
-		// 			if(!part.dynamics) part.dynamic = new Array();
-
-		// 			part.dynamic.push( {
-		// 					type: type.getElementsByTagName("dynamics")[0].childNodes[1].nodeName,
-		// 					stave: stave
-		// 			});
-		// 	}
-
-		// 	if ( type.getElementsByTagName("pedal").length > 0) {
-		// 		var pedal = type.getElementsByTagName("pedal")[0];
-		// 		var type = pedal.getAttribute("type");
-
-		// 		if(!part.directions) part.directions = {};
-		// 		part.directions.pedal = {type: type, stave:stave};
-
-		// 	}
-		// }
-
-
-
-	
-
-
-
-    var noteElems = this.measures[m][p].getElementsByTagName("note");
-    var voiceObjects = new Array(); // array of arrays
-    var lastNote = null; // Hold on to last note in case there is a chord
-    for (var i = 0; i < noteElems.length; i++) {
-      // FIXME: Chord support
-      var noteObj = this.parseNote(noteElems[i], attrs);
-      if (noteObj.grace) continue; // grace note requires VexFlow support
-
-      var voiceNum = 0;
-      if (typeof noteObj.voice == "number") {
-				voiceNum = noteObj.voice;
-        if (noteObj.voice >= numVoices) part.setNumberOfVoices(noteObj.voice+1);
-        numVoices = noteObj.voice+1;
-      }
-      var voice = part.getVoice(voiceNum);
-
-      if (voice.notes.length == 0 && typeof noteObj.stave == "number") {
-        // TODO: voice spanning multiple staves (requires VexFlow support)
-        voice.stave = noteObj.stave;
-      }
-      if (noteObj.chord) lastNote.keys.push(noteObj.keys[0]);
-      else {
-        if (lastNote) part.getVoice(lastNote.voice || 0).addNote(lastNote);
-        lastNote = noteObj;
-      }
-    }
-    if (lastNote) part.getVoice(lastNote.voice || 0).addNote(lastNote);
     // Voices appear to not always be consecutive from 0
     // Copy part and number voices correctly
     // FIXME: Figure out why this happens
@@ -340,6 +320,17 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
       }
     newPart.setNumberOfVoices(v);
     measure.setPart(p, newPart);
+
+
+		// DIRECTIONS HANDLE
+
+		// var directions = this.measures[m][p].getElementsByTagName("direction");
+
+		// for(var i = 0; i<directions.length; i++) {
+			// }
+
+
+
   }
   return measure;
 }
