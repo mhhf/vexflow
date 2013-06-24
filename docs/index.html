@@ -6,7 +6,7 @@
   <meta name="viewport" content="initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no">
 
   <!-- VexFlow Compiled Source -->
-  <script src="../build/vexflow/vexflow-min.js"></script>
+  <!-- <script src="../build/vexflow/vexflow-min.js"></script> -->
   <!-- VexFlow Sources -->
   <script src="../src/header.js"></script>
   <script src="../src/vex.js"></script>
@@ -87,7 +87,7 @@
     $(document).ready(function() {
       var req = new XMLHttpRequest();
       var uri = getParameter('doc');
-			if (! uri) uri = '04_Pre.xml';
+			if (! uri) uri = 'minEx/pedal.xml';
       var loadStart = new Date().getTime(); // time load
       req.open('GET', "samples/" + uri, true);
       req.onreadystatechange = function() {
