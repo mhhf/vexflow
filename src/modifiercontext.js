@@ -733,6 +733,10 @@ Vex.Flow.ModifierContext.prototype.formatAnnotations = function() {
   return this;
 }
 
+
+
+
+
 Vex.Flow.ModifierContext.prototype.formatArticulations = function() {
   var articulations = this.modifiers['articulations'];
   if (!articulations || articulations.length == 0) return this;
@@ -747,11 +751,41 @@ Vex.Flow.ModifierContext.prototype.formatArticulations = function() {
     var width = articulation.getWidth() > max_width ?
       articulation.getWidth() : max_width;
     text_line += 1.5;
+	}
+
+  this.state.left_shift += width / 2;
+  this.state.right_shift += width / 2;
+
+  this.state.text_line = text_line;
+
+  return this;
+}
+
+
+
+
+
+Vex.Flow.ModifierContext.prototype.formatTrills = function() {
+  var annotations = this.modifiers['trills'];
+  if (!annotations || annotations.length == 0) return this;
+
+  var text_line = this.state.text_line;
+  var max_width = 0;
+
+  // Format Annotations
+  for (var i = 0; i < annotations.length; ++i) {
+    var annotation = annotations[i];
+    annotation.setTextLine(text_line);
+    var width = annotation.getWidth() > max_width ?
+      annotation.getWidth() : max_width;
+    text_line++;
   }
 
   this.state.left_shift += width / 2;
   this.state.right_shift += width / 2;
-  this.state.text_line = text_line;
+	//
+  // No need to update text_line because we leave lots of room on the same
+  // line.
   return this;
 }
 
@@ -768,7 +802,8 @@ Vex.Flow.ModifierContext.prototype.preFormat = function() {
        formatArticulations().
        formatAnnotations().
        formatBends().
-       formatVibratos();
+       formatVibratos().
+       formatTrills();
 
   // Update width of this modifier context
   this.width = this.state.left_shift + this.state.right_shift;

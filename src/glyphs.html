@@ -72,12 +72,12 @@
         ctx.beginPath();
         ctx.moveTo(x - 5, y);
         ctx.lineTo(x + 5, y);
-        ctx.stroke()
+        ctx.stroke();
 
         ctx.beginPath();
         ctx.moveTo(x, y - 5);
         ctx.lineTo(x, y + 5);
-        ctx.stroke()
+        ctx.stroke();
 
         ctx.fillStyle = "green";
 
@@ -94,7 +94,7 @@
 
         if (x >= 800) {
           x = 0;
-          y += 40;
+          y += 60;
         }
       }
     });

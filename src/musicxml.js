@@ -195,6 +195,7 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 		// DYNAMIC
 		var barObj = null;
 		var self = this;
+		var grace = null;
 
     var noteElems = this.measures[m][p].getElementsByTagName("note");
     var voiceObjects = new Array(); // array of arrays
@@ -243,7 +244,14 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 			case "note":
 
 				var noteObj = self.parseNote(elem, attrs);
-				if (noteObj.grace) break; // grace note requires VexFlow support
+				if(grace){
+					noteObj.grace = grace;
+					grace = null;
+				}
+				if (noteObj.grace && typeof noteObj.grace == "boolean") {
+					grace = noteObj.keys;
+					break;
+				}
 
 				var voiceNum = 0;
 				if (typeof noteObj.voice == "number") {
@@ -468,7 +476,7 @@ Vex.Flow.Backend.MusicXML.prototype.parseNote = function(noteElem, attrs) {
         // FIXME: default length for rest only if length is full measure
         if (! noteObj.duration) noteObj.duration = "1r";
         break;
-      case "grace": noteObj.grace = true; break;
+			case "grace": noteObj.grace = true; break;
       case "chord": noteObj.chord = true; break;
       case "voice":
         var voice = parseInt(elem.textContent);

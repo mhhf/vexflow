@@ -89,6 +89,12 @@ Vex.Flow.Beam.prototype.init = function(notes, auto_stem) {
     slope_iterations: 20,
     slope_cost: 25
   };
+  
+  if (this.notes[0].isGraceNote()) {
+  	this.render_options.beam_width = 2;
+  	//this.render_options.max_slope = 0;
+  	this.render_options.min_slope = 0;
+  }
 }
 
 Vex.Flow.Beam.prototype.setContext = function(context) {

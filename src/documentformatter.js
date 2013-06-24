@@ -295,6 +295,8 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowNote = function(note, options) {
 		vfNote.addArticulation(0, new Vex.Flow.Articulation("a.").setPosition(vfNote.stem_direction==1?4:3));
 	}
 	if(note.pedal) note.pedal.notes.push(vfNote);
+	// if(note.grace) note.addGraceNoteGroup(note.grace);
+	if(note.grace) vfNote.addGraceNoteGroup(note.grace);
   return vfNote;
 }
 

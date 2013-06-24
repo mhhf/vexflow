@@ -426,6 +426,7 @@ Vex.Flow.Measure.Note = function(object) {
   this.duration = object.duration;
 	this.tieNumber = object.tieNumber;
 	this.slur = object.slur;
+	this.grace = object.grace;
 	this.pedal = object.pedal;
   this.rest = !!(object.rest); // force true or false
   this.intrinsicTicks = (object.intrinsicTicks > 0)

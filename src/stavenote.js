@@ -110,6 +110,17 @@ Vex.Flow.StaveNote.prototype.init = function(note_struct) {
     this.setStemDirection(note_struct.stem_direction);
   }
 
+  this.isGraceNote = function(){
+	return note_struct.isGraceNote === true;
+  };
+  
+  if (this.isGraceNote()) {
+  	this.render_options.glyph_font_scale = 17;
+  	this.render_options.stem_height = 20;
+  	this.render_options.stroke_px = 2;
+  	this.glyph.head_width = 4.5;  	
+  }
+
   // Calculate left/right padding
   this.calcExtraPx();
 }
@@ -431,6 +442,19 @@ Vex.Flow.StaveNote.prototype.addDotToAll = function() {
   return this;
 }
 
+Vex.Flow.StaveNote.prototype.addTrill = function(style) {
+  return this.addAnnotation(0, new Vex.Flow.Trill(style));
+}
+
+Vex.Flow.StaveNote.prototype.addGraceNoteGroup = function(graceNotes) {
+  var graceNoteGroup = new Vex.Flow.GraceNoteGroup(graceNotes);
+  graceNoteGroup.setNote(this);
+  graceNoteGroup.setIndex(0);
+  this.modifiers.push(graceNoteGroup);
+  this.setPreFormatted(false);
+  return this;
+}
+
 Vex.Flow.StaveNote.prototype.getAccidentals = function() {
   return this.modifierContext.getModifiers("accidentals");
 }
@@ -438,7 +462,6 @@ Vex.Flow.StaveNote.prototype.getAccidentals = function() {
 Vex.Flow.StaveNote.prototype.getDots = function() {
   return this.modifierContext.getModifiers("dots");
 }
-
 
 Vex.Flow.StaveNote.prototype.getVoiceShiftWidth = function() {
   // TODO: may need to accomodate for dot here.
