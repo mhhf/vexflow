@@ -264,8 +264,8 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 
 				if (noteObj.chord) lastNote.keys.push(noteObj.keys[0]);
 				else {
-					lastNote = noteObj;
 					if (lastNote) part.getVoice(lastNote.voice || 0).addNote(lastNote);
+					lastNote = noteObj;
 				}
 
 
@@ -300,6 +300,7 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 					Vex.LogWarn("MusicXML measure element <" + elem.nodeName + "> not handled");
 			}
 		});
+		if (lastNote) part.getVoice(lastNote.voice || 0).addNote(lastNote);
 
 
 		// attach bar object to part

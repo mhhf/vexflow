@@ -724,7 +724,7 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.draw = function(elem, options) {
     var canvas, context;
     var dims = this.blockDimensions[b];
     var width = Math.ceil(dims[0] * this.zoom);
-    var height = Math.ceil(dims[1] * this.zoom)+30; // OWN: stave ties are cutted here
+    var height = Math.ceil(dims[1] * this.zoom)+50; // OWN: stave ties are cutted here
     if (! this.canvases[b]) {
       canvas = document.createElement('canvas');
       canvas.width = width * this.scale;
