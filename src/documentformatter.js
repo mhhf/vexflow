@@ -246,6 +246,9 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
 			}));
 		}
 
+		if( vfVoice.stave.pedal )
+			console.log(vfVoice.stave.pedal);
+
     if (note.lyric) {
       if (! lyricVoice) {
         lyricVoice = new Vex.Flow.Voice(vfVoice.time);
@@ -383,9 +386,13 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
   var staves = part.getStaves();
   var voices = part.getVoices();
 
+	// TODO: cleanup the dynamic and directions part, move it to directions
 	// add the dynamic information to a stave
 	if( part.dynamic )
 		vfStaves[part.dynamic[0].stave].dynamic = part.dynamic[0].type;
+
+	if ( part.directions && part.directions.pedal )
+		vfStaves[ part.directions.pedal.stave ].pedal = part.directions.pedal;
 
   vfStaves.forEach(function(stave) { 
 		// HERE

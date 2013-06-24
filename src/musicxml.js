@@ -184,21 +184,32 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
         part.setStave(s, {clef: attrs.clef[s]});
     var numVoices = 1; // can expand dynamically
 		
-		// TODO: Write in part, read from part, look for HERE tag in doc..formatter
+		// TODO: 
+		// FIXME: PedalAndDynamic, wrong display of symbol
 		// DYNAMIC
 		var directions = this.measures[m][p].getElementsByTagName("direction");
+
 		for(var i = 0; i<directions.length; i++) {
-			if( directions[i].getElementsByTagName("direction-type")[0]
-					.getElementsByTagName("dynamics").length > 0){
+			var type = directions[i].getElementsByTagName("direction-type")[0];
+			var stave = directions[i].getElementsByTagName("staff")[0].textContent-1;
 
+			if( type.getElementsByTagName("dynamics").length > 0){
 
-					var stave = directions[i].getElementsByTagName("staff")[0].textContent-1;
 					if(!part.dynamics) part.dynamic = new Array();
 
 					part.dynamic.push( {
-							type: directions[i].getElementsByTagName("direction-type")[0].getElementsByTagName("dynamics")[0].childNodes[1].nodeName,
+							type: type.getElementsByTagName("dynamics")[0].childNodes[1].nodeName,
 							stave: stave
 					});
+			}
+
+			if ( type.getElementsByTagName("pedal").length > 0) {
+				var pedal = type.getElementsByTagName("pedal")[0];
+				var type = pedal.getAttribute("type");
+
+				if(!part.directions) part.directions = {};
+				part.directions.pedal = {type: type, stave:stave};
+
 			}
 		}
 

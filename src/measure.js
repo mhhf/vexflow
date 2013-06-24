@@ -114,6 +114,11 @@ Vex.Flow.Measure.Part = function(object) {
     Vex.Merge(this.options, object.options);
 	if (typeof object.bars == "object") 
 		this.bars = object.bars;
+
+	if(typeof object.directions == "object") {
+		this.directions = object.directions;
+	}
+
 	if(typeof object.dynamic == "object")
 		this.dynamic = object.dynamic;
 
