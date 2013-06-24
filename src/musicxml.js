@@ -165,12 +165,17 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasureNumber = function(m) {
   return isNaN(num) ? null : num;
 }
 
+
+
+// Parse Measure
 Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
   var measure_attrs = this.getAttributes(m, 0);
   var time = measure_attrs.time;
   var measure = new Vex.Flow.Measure({time: time});
   var numParts = this.measures[m].length;
   measure.setNumberOfParts(numParts);
+
+	// For each part
   for (var p = 0; p < numParts; p++) {
     var attrs = this.getAttributes(m, p);
     var partOptions = {time: time};
@@ -187,46 +192,24 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 		// TODO: 
 		// FIXME: PedalAndDynamic, wrong display of symbol
 		// DYNAMIC
-		var directions = this.measures[m][p].getElementsByTagName("direction");
+		var barObj = null;
 
-		for(var i = 0; i<directions.length; i++) {
-			var type = directions[i].getElementsByTagName("direction-type")[0];
-			var stave = directions[i].getElementsByTagName("staff")[0].textContent-1;
+		Array.prototype.forEach.call(	this.measures[m][p].childNodes, function(elem){
+			switch(elem.nodeName){
+			case "direction":
+				console.log("directions found");
+				break;
+			case "note":
+				console.log("note found");
+				break;
+			case "barline":
 
-			if( type.getElementsByTagName("dynamics").length > 0){
+	 			barObj = {};
 
-					if(!part.dynamics) part.dynamic = new Array();
+				// if location is set
+				if(elem.getAttribute("location")) barObj.location = elem.getAttribute("location");
 
-					part.dynamic.push( {
-							type: type.getElementsByTagName("dynamics")[0].childNodes[1].nodeName,
-							stave: stave
-					});
-			}
-
-			if ( type.getElementsByTagName("pedal").length > 0) {
-				var pedal = type.getElementsByTagName("pedal")[0];
-				var type = pedal.getAttribute("type");
-
-				if(!part.directions) part.directions = {};
-				part.directions.pedal = {type: type, stave:stave};
-
-			}
-		}
-
-
-
-		var barlines = this.measures[m][p].getElementsByTagName("barline");
-		// BARLINES
-		if(barlines.length > 0) {
-		
-			var bars = {};
-			for(var b=0; b<barlines.length; b++){
-				
-				var bar = barlines[b];
-				var barObj = {};
-				
-				if(bar.getAttribute("location")) barObj.location = bar.getAttribute("location");
-				Array.prototype.forEach.call(bar.childNodes,function(node){
+				Array.prototype.forEach.call(elem.childNodes,function(node){
 					switch(node.nodeName){
 						case "bar-style":
 							barObj.barStyle = node.textContent;
@@ -237,10 +220,85 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 					}
 				});
 
+				break;
+			case "print":
+			case "attributes":
+			case "backup":
+				// do nothing
+				break;
+			default: // Throw warning, if a unhandled element is found
+				if(elem.nodeName != "#text")
+					Vex.LogWarn("MusicXML measure element <" + elem.nodeName + "> not handled");
 			}
+		});
 
+		// attach bar object to part
+		if( barObj )
 			part.bars = barObj;
-		}
+
+
+	// var barlines = this.measures[m][p].getElementsByTagName("barline");
+	// 	// BARLINES
+	// 	if(barlines.length > 0) {
+	// 	
+	// 		for(var b=0; b<barlines.length; b++){
+	// 			
+	// 			var bar = barlines[b];
+	// 			var barObj = {};
+	// 			
+	// 			if(bar.getAttribute("location")) barObj.location = bar.getAttribute("location");
+	// 			Array.prototype.forEach.call(bar.childNodes,function(node){
+	// 				switch(node.nodeName){
+	// 					case "bar-style":
+	// 						barObj.barStyle = node.textContent;
+	// 					break;
+	// 					case "repeat":
+	// 						barObj.direction = node.getAttribute("direction");
+	// 					break;
+	// 				}
+	// 			});
+
+	// 		}
+
+	// 		// part.bars = barObj;
+	// 	}
+
+
+
+		// DIRECTIONS HANDLE
+
+		// var directions = this.measures[m][p].getElementsByTagName("direction");
+
+		// for(var i = 0; i<directions.length; i++) {
+		// 	var type = directions[i].getElementsByTagName("direction-type")[0];
+		// 	var stave = directions[i].getElementsByTagName("staff")[0].textContent-1;
+
+		// 	if( type.getElementsByTagName("dynamics").length > 0){
+
+		// 			if(!part.dynamics) part.dynamic = new Array();
+
+		// 			part.dynamic.push( {
+		// 					type: type.getElementsByTagName("dynamics")[0].childNodes[1].nodeName,
+		// 					stave: stave
+		// 			});
+		// 	}
+
+		// 	if ( type.getElementsByTagName("pedal").length > 0) {
+		// 		var pedal = type.getElementsByTagName("pedal")[0];
+		// 		var type = pedal.getAttribute("type");
+
+		// 		if(!part.directions) part.directions = {};
+		// 		part.directions.pedal = {type: type, stave:stave};
+
+		// 	}
+		// }
+
+
+
+	
+
+
+
     var noteElems = this.measures[m][p].getElementsByTagName("note");
     var voiceObjects = new Array(); // array of arrays
     var lastNote = null; // Hold on to last note in case there is a chord
