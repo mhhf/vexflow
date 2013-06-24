@@ -206,7 +206,10 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 			case "direction":
 
 				var type = elem.getElementsByTagName("direction-type")[0];
-				var stave = elem.getElementsByTagName("staff")[0].textContent-1;
+				if(elem.getElementsByTagName("staff").length > 0)
+					var stave = elem.getElementsByTagName("staff")[0].textContent-1;
+				else
+					var stave = 0;
 				
 				switch(type.childNodes[1].nodeName){
 				case "pedal":
@@ -228,10 +231,12 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 					break;
 				case "dynamics":
 					if(!part.dynamics) part.dynamic = new Array();
+					var display = elem.getAttribute("placement");
 
 					part.dynamic.push( {
 							type: type.getElementsByTagName("dynamics")[0].childNodes[1].nodeName,
-							stave: stave
+							stave: stave,
+							display: display
 					});
 
 					break;

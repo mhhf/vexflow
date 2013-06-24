@@ -233,18 +233,6 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowVoice =function(voice, staves){
     }
     else vfVoice.addTickable(vfNote);
 		
-		// Note Dynamics
-		if(vfVoice.stave.dynamic) {
-			if(!lyricVoice){
-				lyricVoice = new Vex.Flow.Voice(vfVoice.time);
-				lyricVoice.setMode(Vex.Flow.Voice.Mode.SOFT);
-				lyricVoice.setStave(vfVoice.stave);
-			}
-
-			lyricVoice.addTickable(new Vex.Flow.TextNote({
-						text: "", duration: "w", glyphs:vfVoice.stave.dynamic, soft:true, line:1
-			}));
-		}
 
 
     if (note.lyric) {
@@ -390,7 +378,7 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 	// TODO: cleanup the dynamic and directions part, move it to directions
 	// add the dynamic information to a stave
 	if( part.dynamic )
-		vfStaves[part.dynamic[0].stave].dynamic = part.dynamic[0].type;
+		vfStaves[part.dynamic[0].stave].dynamic = {glyphs: part.dynamic[0].type, display: part.dynamic[0].display};
 
 	if ( part.directions && part.directions.pedal )
 		vfStaves[ part.directions.pedal.stave ].pedal = part.directions.pedal;
@@ -415,6 +403,21 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
     Array.prototype.push.apply(allVfObjects, result[1]);
     var vfVoice = result[0];
     var lyricVoice = result[2];
+
+		// Note Dynamics
+		if(vfVoice.stave.dynamic) {
+			var line = 1;
+			if(vfVoice.stave.dynamic.display == "below") line = 10;
+			if(!lyricVoice){
+				lyricVoice = new Vex.Flow.Voice(vfVoice.time);
+				lyricVoice.setMode(Vex.Flow.Voice.Mode.SOFT);
+				lyricVoice.setStave(vfVoice.stave);
+			}
+
+			lyricVoice.addTickable(new Vex.Flow.TextNote({
+						text: "", duration: "w", glyphs:vfVoice.stave.dynamic.glyphs, soft:true, line:line
+			}));
+		}
     vfVoice.tickables.forEach(function(tickable) {
       tickable.setStave(vfVoice.stave); });
     vfVoices.push(vfVoice);
@@ -462,6 +465,7 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 				last_note: last_note
 			}));
 		}
+
 	},this);
 
 	this.syncs.sort(function(a,b){
@@ -599,7 +603,7 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.getBlock = function(b) {
 		if (startMeasure == 0 && ! s.getModifier("time")) {
       if (typeof s.time_signature == "string")
         s.addModifier({type: "time", time: s.time_signature,automatic:true});
-      else if (typeof s.time == "object" && !s.time.soft)
+      else if (typeof s.time == "object" )
         s.addModifier(Vex.Merge({type: "time", automatic: true}, s.time));
     }
   });

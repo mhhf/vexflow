@@ -38,8 +38,8 @@ Vex.Flow.StavePed.prototype.init = function(notes) {
   this.render_options = {
       first_x_shift: 0,
       last_x_shift: 0,
-      y_shift: 29,
-    };
+      y_shift: 29
+    }
 
   this.font = this.render_options.font;
   this.setNotes(notes);
