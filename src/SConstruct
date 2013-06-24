@@ -33,6 +33,7 @@ vexflow_sources = [
     "dot.js",
     "formatter.js",
     "stavetie.js",
+    "staveslur.js",
     "tabtie.js",
     "tabslide.js",
     "bend.js",
