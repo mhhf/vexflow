@@ -487,7 +487,7 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
     this.drawPart(part, partStaves, context);
     startStave += numStaves;
   }, this);
-
+	
   this.document.getStaveConnectors().forEach(function(connector) {
     if (! ((options.system_start && connector.system_start)
         || (options.system_end && connector.system_end)
@@ -526,7 +526,7 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
     if ((options.system_start && connector.system_start)
         || connector.measure_start) {
       (new Vex.Flow.StaveConnector(vfStaves[firstStave], vfStaves[lastStave])
-			).setType(type).setNumber(1).setContext(context).draw();
+			).setType(type).setNumber(options.measure_number).setContext(context).draw();
     }
     if (options.system_end && connector.system_end) {
       var stave1 = vfStaves[firstStave], stave2 = vfStaves[lastStave];
@@ -545,7 +545,9 @@ Vex.Flow.DocumentFormatter.prototype.drawBlock = function(b, context) {
     while (this.getStave(m, stave)) stave++;
     this.drawMeasure(this.document.getMeasure(m), this.vfStaves[m], context,
                      {system_start: m == measures[0],
-                      system_end: m == measures[measures.length - 1]});
+                      system_end: m == measures[measures.length - 1],
+											measure_number: m + 1
+											});
   }, this);
 }
 
