@@ -29,6 +29,11 @@ Vex.Flow.StaveConnector.prototype.setContext = function(ctx) {
   return this;
 }
 
+Vex.Flow.StaveConnector.prototype.setNumber = function(number) {
+	this.number = number;
+  return this;
+}
+
 Vex.Flow.StaveConnector.prototype.setType = function(type) {
   if (type >= Vex.Flow.StaveConnector.type.SINGLE &&
       type <= Vex.Flow.StaveConnector.type.REPEAT_END)
@@ -108,6 +113,10 @@ Vex.Flow.StaveConnector.prototype.draw = function() {
 			topY += 1;
 			break;
   }
+
+	if(this.number != undefined) {
+		this.ctx.fillText(this.number, this.top_stave.getX() + 2 , topY - 8 );
+	}
   
   if (this.type != Vex.Flow.StaveConnector.type.BRACE) {
     this.ctx.fillRect(topX , topY, width, attachment_height);

@@ -526,13 +526,14 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
     if ((options.system_start && connector.system_start)
         || connector.measure_start) {
       (new Vex.Flow.StaveConnector(vfStaves[firstStave], vfStaves[lastStave])
-          ).setType(type).setContext(context).draw();
+			).setType(type).setNumber(1).setContext(context).draw();
     }
     if (options.system_end && connector.system_end) {
       var stave1 = vfStaves[firstStave], stave2 = vfStaves[lastStave];
       (new Vex.Flow.StaveConnector(stave1, stave2)
           ).setType(Vex.Flow.StaveConnector.type.SINGLE_END).setContext(context).draw();
     }
+
   });
 }
 

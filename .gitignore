@@ -18,3 +18,4 @@ ruby_sess.*
 .idea/vcs.xml
 .idea/workspace.xml
 build/
+docs/samples
