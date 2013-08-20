@@ -29,6 +29,7 @@ Vex.Flow.keyProperties = function(key, clef) {
   if (clef === undefined) {
     clef = 'treble';
   }
+	console.log(key);
 
   var pieces = key.split("/");
 

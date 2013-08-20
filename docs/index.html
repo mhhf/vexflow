@@ -89,7 +89,7 @@
     $(document).ready(function() {
       var req = new XMLHttpRequest();
       var uri = getParameter('doc');
-			if (! uri) uri = '04_Pre.xml';
+			if (! uri) uri = 'hill.xml';
 			if (! uri) uri = 'minEx/pedalMultipleNotes.xml';
       var loadStart = new Date().getTime(); // time load
       req.open('GET', "samples/" + uri, true);

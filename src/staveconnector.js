@@ -114,8 +114,10 @@ Vex.Flow.StaveConnector.prototype.draw = function() {
 			break;
   }
 
-	if(this.number != undefined) {
-		this.ctx.fillText(this.number, this.top_stave.getX() + 2 , topY - 8 );
+	if(this.number != undefined && this.number != 1) {
+		var offset = 0;
+		if (this.number > 9) offset = 3;
+		this.ctx.fillText(this.number, this.top_stave.getX() - 2 - offset, topY - 5  );
 	}
   
   if (this.type != Vex.Flow.StaveConnector.type.BRACE) {
