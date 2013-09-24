@@ -280,7 +280,7 @@ Vex.Flow.DocumentFormatter.prototype.getVexflowNote = function(note, options) {
   for (var i = 0; i < numDots; i++) vfNote.addDotToAll();
 	if(typeof note.articulations == "object" && note.articulations.staccato == true) 
 	{
-		vfNote.addArticulation(0, new Vex.Flow.Articulation("a.").setPosition(vfNote.stem_direction==1?4:3));
+		vfNote.addArticulation(0, new Vex.Flow.Articulation("a.").setPosition(vfNote.stem_direction==2?4:3));
 	}
 	if(note.pedal) note.pedal.notes.push(vfNote);
 	// if(note.grace) note.addGraceNoteGroup(note.grace);
@@ -438,14 +438,16 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 		vfVoice.tickables.forEach(function(tickable,t){
 			// creates a new voice entry if the 
 			// if(!(v in this.syncs)) this.syncs[v] = new Array();
-			this.syncs.push({
+			var syncObject = {
 					numTickable: t,
 					type: tickable.noteType,
 					x: tickable.getAbsoluteX(),
 					keys: tickable.keys,
 					keyProps: tickable.keyProps,
 					tickable: tickable
-			});
+			};
+			console.log(syncObject);
+			this.syncs.push(syncObject);
 		},this);
 
 		if( vfVoice.stave.pedal ){
