@@ -113,7 +113,7 @@
 
         if (VexDocument) {
 					// OWN: Splitting of the canvas into multiple parts, see chromebug
-					maxParts = Math.ceil( VexDocument.backend.measures.length / 40);
+					var maxParts = Math.ceil( VexDocument.backend.measures.length / 40);
 					for( var i=0; i < maxParts; i++ ) {
 						VexFormatter = VexDocument.getFormatter();
 						VexFormatter.setOffset( (-8192)*i ).draw(content);
