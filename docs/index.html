@@ -89,7 +89,7 @@
     $(document).ready(function() {
       var req = new XMLHttpRequest();
       var uri = getParameter('doc');
-			if (! uri) uri = '0001.xml';
+			if (! uri) uri = '1.xml';
 			if (! uri) uri = 'minEx/pedalMultipleNotes.xml';
       var loadStart = new Date().getTime(); // time load
       req.open('GET', "samples/" + uri, true);
@@ -113,6 +113,11 @@
 
         if (VexDocument) {
           VexFormatter = VexDocument.getFormatter();
+					VexFormatter.setOffset(10);
+          VexFormatter.draw(content);
+
+          VexFormatter = VexDocument.getFormatter();
+					VexFormatter.setOffset(-100);
           VexFormatter.draw(content);
         }
       };

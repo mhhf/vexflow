@@ -572,8 +572,8 @@ Vex.Flow.DocumentFormatter.prototype.drawBlock = function(b, context) {
 Vex.Flow.DocumentFormatter.Liquid = function(document) {
   if (arguments.length > 0) Vex.Flow.DocumentFormatter.call(this, document);
   this.width = 500; // default value
-  this.zoom = 1.0;
-  this.scale = 1.0;
+  this.zoom = 1;
+  this.scale = 1;
   if (typeof window.devicePixelRatio == "number"
       && window.devicePixelRatio > 1)
     this.scale = Math.floor(window.devicePixelRatio);
@@ -584,6 +584,9 @@ Vex.Flow.DocumentFormatter.Liquid.constructor
 
 Vex.Flow.DocumentFormatter.Liquid.prototype.setWidth = function(width) {
   this.width = width; return this; }
+
+Vex.Flow.DocumentFormatter.Liquid.prototype.setOffset = function(offset) {
+  this.startOffset = offset; return this; }
 
 Vex.Flow.DocumentFormatter.Liquid.prototype.getBlock = function(b) {
   if (b in this.blockDimensions) return this.blockDimensions[b];
@@ -619,10 +622,12 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.getBlock = function(b) {
   if (! this.measureWidth) this.measureWidth = new Array();
 
   // Calculate start x (15 if there are braces, 10 otherwise)
-  var start_x = 10;
+	var start_x = 10;
   this.document.getMeasure(startMeasure).getParts().forEach(function(part) {
     if (part.showsBrace()) start_x = 15;
   });
+
+	if(this.startOffset) start_x += this.startOffset;
 
   if (this.getMinMeasureWidth(startMeasure) + start_x + 10 >= this.width) {
     // Use only this measure and the minimum possible width
@@ -719,6 +724,8 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.draw = function(elem, options) {
   // var canvasWidth = $(elem).width() - 10; // TODO: can we use jQuery?
 	var canvasWidth = this.document.getNumberOfMeasures()*200+10;
   var renderWidth = Math.floor(canvasWidth / this.zoom);
+	// OWN
+	// if( renderWidth > 8192 ) 
   // Invalidate all blocks/staves/voices
   this.minMeasureWidths = []; // heights don't change with stave modifiers
   this.measuresInBlock = [];
