@@ -724,8 +724,11 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.draw = function(elem, options) {
   // var canvasWidth = $(elem).width() - 10; // TODO: can we use jQuery?
 	var canvasWidth = this.document.getNumberOfMeasures()*200+10;
   var renderWidth = Math.floor(canvasWidth / this.zoom);
-	// OWN
-	// if( renderWidth > 8192 ) 
+	if( renderWidth > 8192 ) {
+		// XXX: Fucking Chrome has a Fucking bug that dosn't allow the canvas be larger the n 8192px
+		// see: https://code.google.com/p/chromium/issues/detail?id=121405
+		renderWidth = 8192;
+	}
   // Invalidate all blocks/staves/voices
   this.minMeasureWidths = []; // heights don't change with stave modifiers
   this.measuresInBlock = [];
