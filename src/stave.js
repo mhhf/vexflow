@@ -236,6 +236,7 @@ Vex.Flow.Stave.prototype.draw = function(context) {
   var width = this.width;
   var x = this.x;
 
+
   for (var line=0; line < num_lines; line++) {
     var y = this.getYForLine(line);
 

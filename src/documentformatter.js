@@ -446,7 +446,7 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 					keyProps: tickable.keyProps,
 					tickable: tickable
 			};
-			console.log(syncObject);
+			// console.log(syncObject);
 			this.syncs.push(syncObject);
 		},this);
 
@@ -476,6 +476,7 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 
   allVfObjects.forEach(function(obj) {
     obj.setContext(context).draw(); });
+	
 }
 
 // Options contains system_start, system_end for measure
