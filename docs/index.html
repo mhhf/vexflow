@@ -89,7 +89,7 @@
     $(document).ready(function() {
       var req = new XMLHttpRequest();
       var uri = getParameter('doc');
-			if (! uri) uri = '1.xml';
+			if (! uri) uri = '0001.xml';
 			if (! uri) uri = 'minEx/pedalMultipleNotes.xml';
       var loadStart = new Date().getTime(); // time load
       req.open('GET', "samples/" + uri, true);
@@ -112,13 +112,12 @@
         var content = $(".content")[0];
 
         if (VexDocument) {
-          VexFormatter = VexDocument.getFormatter();
-					VexFormatter.setOffset(10);
-          VexFormatter.draw(content);
-
-          VexFormatter = VexDocument.getFormatter();
-					VexFormatter.setOffset(-100);
-          VexFormatter.draw(content);
+					// OWN: Splitting of the canvas into multiple parts, see chromebug
+					maxParts = Math.ceil( VexDocument.backend.measures.length / 40);
+					for( var i=0; i < maxParts; i++ ) {
+						VexFormatter = VexDocument.getFormatter();
+						VexFormatter.setOffset( (-8192)*i ).draw(content);
+					}
         }
       };
       req.send(null);

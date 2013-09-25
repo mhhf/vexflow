@@ -627,14 +627,15 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.getBlock = function(b) {
     if (part.showsBrace()) start_x = 15;
   });
 
-	if(this.startOffset) start_x += this.startOffset;
+	var offset = 0;
+	if(this.startOffset) offset = this.startOffset;
 
   if (this.getMinMeasureWidth(startMeasure) + start_x + 10 >= this.width) {
     // Use only this measure and the minimum possible width
     var block = [this.getMinMeasureWidth(startMeasure) + start_x + 10, 0];
     this.blockDimensions[b] = block;
     this.measuresInBlock[b] = [startMeasure];
-    this.measureX[startMeasure] = start_x;
+    this.measureX[startMeasure] = start_x + offset;
     this.measureWidth[startMeasure] = block[0] - start_x - 10;
   }
   else {
@@ -671,7 +672,7 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.getBlock = function(b) {
     remainingWidth -= extraWidth * (endMeasure - startMeasure + 1);
     this.measureWidth[startMeasure] += remainingWidth; // Add remainder
     // Calculate x value for each measure
-    this.measureX[startMeasure] = start_x;
+    this.measureX[startMeasure] = start_x + offset;
     for (var m = startMeasure + 1; m <= endMeasure; m++)
       this.measureX[m] = this.measureX[m-1] + this.measureWidth[m-1];
     this.blockDimensions[b] = [this.width, 0];
@@ -717,18 +718,13 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.getStaveWidth = function(m, s) {
 Vex.Flow.DocumentFormatter.Liquid.prototype.draw = function(elem, options) {
   if (this._htmlElem != elem) {
     this._htmlElem = elem;
-    elem.innerHTML = "";
+    // elem.innerHTML = "";
     this.canvases = [];
   }
 
   // var canvasWidth = $(elem).width() - 10; // TODO: can we use jQuery?
 	var canvasWidth = this.document.getNumberOfMeasures()*200+10;
   var renderWidth = Math.floor(canvasWidth / this.zoom);
-	if( renderWidth > 8192 ) {
-		// XXX: Fucking Chrome has a Fucking bug that dosn't allow the canvas be larger the n 8192px
-		// see: https://code.google.com/p/chromium/issues/detail?id=121405
-		renderWidth = 8192;
-	}
   // Invalidate all blocks/staves/voices
   this.minMeasureWidths = []; // heights don't change with stave modifiers
   this.measuresInBlock = [];
@@ -746,6 +742,7 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.draw = function(elem, options) {
     var canvas, context;
     var dims = this.blockDimensions[b];
     var width = Math.ceil(dims[0] * this.zoom);
+		if(width>8192) width = 8192;
     var height = Math.ceil(dims[1] * this.zoom)+50; // OWN: stave ties are cutted here
     if (! this.canvases[b]) {
       canvas = document.createElement('canvas');
@@ -799,8 +796,8 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.draw = function(elem, options) {
   }
   while (typeof this.canvases[b] == "object") {
     // Remove canvases beyond the last one we are using
-    elem.removeChild(this.canvases[b]);
-    delete this.canvases[b];
+    // elem.removeChild(this.canvases[b]);
+    // delete this.canvases[b];
     b++;
   }
 }
