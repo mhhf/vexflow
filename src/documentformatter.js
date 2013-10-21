@@ -371,7 +371,7 @@ Vex.Flow.DocumentFormatter.prototype.getMinMeasureHeight = function(m) {
 
 // Internal drawing functions
 Vex.Flow.DocumentFormatter.prototype.drawPart =
-  function(part, vfStaves, context) {
+  function(part, vfStaves, context, b) {
   var staves = part.getStaves();
   var voices = part.getVoices();
 
@@ -444,7 +444,8 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 					x: tickable.getAbsoluteX(),
 					keys: tickable.keys,
 					keyProps: tickable.keyProps,
-					tickable: tickable
+					tickable: tickable,
+					block: b
 			};
 			// console.log(syncObject);
 			this.syncs.push(syncObject);
@@ -470,8 +471,8 @@ Vex.Flow.DocumentFormatter.prototype.drawPart =
 
 	},this);
 
-	this.syncs.sort(function(a,b){
-		return a.x - b.x;
+	this.syncs.sort(function(i,k){
+		return i.block==k.block?i.x-k.x:i.block-k.block
 	});
 
   allVfObjects.forEach(function(obj) {
@@ -487,7 +488,7 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
   parts.forEach(function(part) {
     var numStaves = part.getNumberOfStaves();
     var partStaves = vfStaves.slice(startStave, startStave + numStaves);
-    this.drawPart(part, partStaves, context);
+    this.drawPart(part, partStaves, context, options.block);
     startStave += numStaves;
   }, this);
 	
@@ -549,7 +550,8 @@ Vex.Flow.DocumentFormatter.prototype.drawBlock = function(b, context) {
     this.drawMeasure(this.document.getMeasure(m), this.vfStaves[m], context,
                      {system_start: m == measures[0],
                       system_end: m == measures[measures.length - 1],
-											measure_number: m + 1
+											measure_number: m + 1,
+											block: b
 											});
   }, this);
 }
@@ -585,8 +587,11 @@ Vex.Flow.DocumentFormatter.Liquid.constructor
 Vex.Flow.DocumentFormatter.Liquid.prototype.setWidth = function(width) {
   this.width = width; return this; }
 
-Vex.Flow.DocumentFormatter.Liquid.prototype.setOffset = function(offset) {
-  this.startOffset = offset; return this; }
+Vex.Flow.DocumentFormatter.Liquid.prototype.setOptions=function(b){ 
+	if(b.offset) this.startOffset=b.offset;
+	if(b.fullPage)this.fullPage=b.fullPage;
+	return this
+}
 
 Vex.Flow.DocumentFormatter.Liquid.prototype.getBlock = function(b) {
   if (b in this.blockDimensions) return this.blockDimensions[b];
@@ -723,7 +728,7 @@ Vex.Flow.DocumentFormatter.Liquid.prototype.draw = function(elem, options) {
   }
 
   // var canvasWidth = $(elem).width() - 10; // TODO: can we use jQuery?
-	var canvasWidth = this.document.getNumberOfMeasures()*200+10;
+	var canvasWidth = this.document.getNumberOfMeasures()*210+10;
   var renderWidth = Math.floor(canvasWidth / this.zoom);
   // Invalidate all blocks/staves/voices
   this.minMeasureWidths = []; // heights don't change with stave modifiers

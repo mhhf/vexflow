@@ -4,7 +4,7 @@
 // Copyright Mohit Muthanna Cheppudira 2010
 
 /** @constructor */
-function Vex() {}
+Vex = function () {};
 
 /**
  * Enable debug mode for special-case code.

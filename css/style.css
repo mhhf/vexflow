@@ -1,0 +1,6 @@
+.debugLine{
+	height: 100%;
+	border-left: 1px solid #f00;
+	position: absolute;
+	top: 0px;
+}

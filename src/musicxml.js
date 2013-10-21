@@ -211,6 +211,7 @@ Vex.Flow.Backend.MusicXML.prototype.getMeasure = function(m) {
 				else
 					var stave = 0;
 				
+				if( type.childNodes[1] )
 				switch(type.childNodes[1].nodeName){
 				case "pedal":
 
