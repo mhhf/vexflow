@@ -518,9 +518,12 @@ Vex.Flow.DocumentFormatter.prototype.drawMeasure =
 		// TODO: What if measure holds multiple parts?
 		var bars =  measure.getParts()[0].bars;
 		if ( typeof bars == "object" ) {
+<<<<<<< HEAD
+=======
 			if( bars.location == "right" ) {
 				type = Vex.Flow.StaveConnector.type.REPEAT_END;
 			}
+>>>>>>> 811684ece87f4ca3ad536f86812f4aa1b4116b6b
 			if( bars.location == "left" ) {
 				type = Vex.Flow.StaveConnector.type.REPEAT_BEGIN;
 			}
